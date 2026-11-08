@@ -1,0 +1,120 @@
+
+let expenses = JSON.parse(localStorage.getItem("expenses")) || [];
+
+let editIndex = -1;
+
+const form = document.getElementById("expenseForm");
+const amount = document.getElementById("amount");
+const description = document.getElementById("description");
+const category = document.getElementById("category");
+const expenseList = document.getElementById("expenseList");
+const submitBtn = document.getElementById("submitBtn");
+
+
+// Add and Update Expense
+
+form.addEventListener("submit", function(event) {
+
+    event.preventDefault();
+
+    const expense = {
+        amount: Number(amount.value),
+        description: description.value,
+        category: category.value
+    };
+
+    if (editIndex === -1) {
+
+        expenses.push(expense);
+
+    } else {
+
+        expenses[editIndex] = expense;
+
+        editIndex = -1;
+
+        submitBtn.innerText = "Add Expense";
+    }
+
+    localStorage.setItem("expenses", JSON.stringify(expenses));
+
+    form.reset();
+
+    displayExpenses();
+
+});
+
+
+// Display Expenses
+
+function displayExpenses() {
+
+    expenseList.innerHTML = "";
+
+    let total = 0;
+
+    expenses.forEach(function(expense, index) {
+
+        total += expense.amount;
+
+        const div = document.createElement("div");
+
+        const details = document.createElement("p");
+
+        details.innerText =
+            "Amount: ₹" + expense.amount +
+            " | Description: " + expense.description +
+            " | Category: " + expense.category;
+
+        // Edit Button
+
+        const editBtn = document.createElement("button");
+
+        editBtn.innerText = "Edit";
+
+        editBtn.addEventListener("click", function() {
+
+            amount.value = expense.amount;
+            description.value = expense.description;
+            category.value = expense.category;
+
+            editIndex = index;
+
+            submitBtn.innerText = "Update Expense";
+
+        });
+
+
+        // Delete Button
+
+        const deleteBtn = document.createElement("button");
+
+        deleteBtn.innerText = "Delete";
+
+        deleteBtn.addEventListener("click", function() {
+
+            expenses.splice(index, 1);
+
+            localStorage.setItem("expenses", JSON.stringify(expenses));
+
+            displayExpenses();
+
+        });
+
+
+        div.appendChild(details);
+        div.appendChild(editBtn);
+        div.appendChild(deleteBtn);
+
+        expenseList.appendChild(div);
+
+    });
+
+    document.getElementById("total").innerText = total;
+
+}
+
+
+// Load Saved Expenses
+
+displayExpenses();
